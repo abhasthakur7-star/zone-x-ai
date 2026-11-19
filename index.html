@@ -24,7 +24,7 @@
     border-radius:10px;padding:8px 12px;font-size:13px;font-weight:600;cursor:pointer
   }
 
-  /* Inline API Key Box (No Popup / No Modal) */
+  /* Inline API Key Box */
   .inline-key-panel{
     display:none;background:#161b22;border-bottom:1px solid #30363d;
     padding:14px 18px
@@ -123,7 +123,7 @@
   <button type="button" class="key-btn" id="toggleKeyBtn">⚙️ API Key</button>
 </header>
 
-<!-- Inline Key Box Directly Inside Page -->
+<!-- Inline Key Box -->
 <div class="inline-key-panel" id="keyPanel">
   <div class="inline-key-inner">
     <div style="font-size:13px;color:#c9d1d9;">
@@ -168,7 +168,7 @@
     <div class="card">
       <h2>🖼️ Text to Image Generator</h2>
       <p>English mein prompt likhein aur AI se photo banayein.</p>
-      <textarea id="imgPrompt" rows="3" placeholder="Example: Futuristic sci-fi robot warrior standing in neon city, cinematic 8k..."></textarea>
+      <textarea id="imgPrompt" rows="3" placeholder="Example: Cute 3D cartoon underwater fish character swimming in bright ocean, 8k render..."></textarea>
       <button type="button" class="btn" id="imgBtn" onclick="generateImage()">Generate Image</button>
       <div class="output-box" id="imgOutput"></div>
     </div>
@@ -192,7 +192,7 @@
     <div class="card">
       <h2>🎬 Text to Video Generator</h2>
       <p>Scene ka description likhein.</p>
-      <textarea id="vidPrompt" rows="3" placeholder="Example: A cinematic drone shot flying over snowy mountains at sunrise..."></textarea>
+      <textarea id="vidPrompt" rows="3" placeholder="Example: 3D cartoon ocean scene with colorful fish and happy kids rhyme animation..."></textarea>
       <button type="button" class="btn" onclick="generateTextToVideo()">Generate Video</button>
       <div class="output-box" id="t2vOutput"></div>
     </div>
@@ -206,7 +206,7 @@
       <div class="file-box">
         <input type="file" id="audFile" accept="audio/*">
       </div>
-      <input type="text" id="a2vPrompt" placeholder="Visual style (e.g. 3D cartoon animation, music visualizer...)">
+      <input type="text" id="a2vPrompt" placeholder="Visual style (e.g. 3D cartoon animation, kids rhyme scene...)">
       <button type="button" class="btn" onclick="generateAudioToVideo()">Create Video</button>
       <div class="output-box" id="a2vOutput"></div>
     </div>
@@ -272,7 +272,7 @@ async function sendMessage() {
   }
 
   try {
-    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`, {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${apiKey}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -390,4 +390,5 @@ function generateAudioToVideo() {
 }
 </script>
 </body>
-</html>
+ </html>
+ 
