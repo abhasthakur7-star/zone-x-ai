@@ -12,7 +12,7 @@
     min-height:100vh;display:flex;flex-direction:column
   }
   header{
-    padding:14px 20px;background:#161b22;
+    padding:14px 18px;background:#161b22;
     border-bottom:1px solid #30363d;
     display:flex;align-items:center;justify-content:space-between;gap:10px;
     position:sticky;top:0;z-index:100
@@ -20,10 +20,21 @@
   .logo{font-size:21px;font-weight:800;letter-spacing:0.5px;color:#58a6ff}
   .logo span{color:#fff}
   .key-btn{
-    background:#21262d;color:#c9d1d9;border:1px solid #30363d;
-    border-radius:10px;padding:8px 12px;font-size:13px;cursor:pointer
+    background:#21262d;color:#fff;border:1px solid #46536a;
+    border-radius:10px;padding:8px 12px;font-size:13px;font-weight:600;cursor:pointer
   }
-  .key-btn:hover{border-color:#58a6ff;color:#fff}
+
+  /* Inline API Key Box (No Popup / No Modal) */
+  .inline-key-panel{
+    display:none;background:#161b22;border-bottom:1px solid #30363d;
+    padding:14px 18px
+  }
+  .inline-key-panel.open{display:block}
+  .inline-key-inner{
+    max-width:860px;margin:0 auto;display:flex;flex-direction:column;gap:10px
+  }
+  .inline-key-row{display:flex;gap:8px;flex-wrap:wrap}
+  .inline-key-row input{flex:1;min-width:200px}
 
   /* Navigation Tabs */
   .tabs{
@@ -35,7 +46,7 @@
   .tab{
     background:#1c2331;color:#9ba6b5;border:1px solid #2d3748;
     border-radius:20px;padding:8px 16px;font-size:14px;font-weight:600;
-    cursor:pointer;white-space:nowrap;transition:0.2s
+    cursor:pointer;white-space:nowrap
   }
   .tab.active{
     background:#2679e8;color:#fff;border-color:#2679e8
@@ -68,16 +79,17 @@
   }
   textarea, input[type="text"], input[type="password"]{
     width:100%;background:#0d1117;border:1px solid #30363d;
-    border-radius:12px;color:#fff;font-size:15px;padding:12px;outline:none
+    border-radius:12px;color:#fff;font-size:15px;padding:11px;outline:none
   }
   .inputbox textarea{
     background:transparent;border:0;padding:8px;resize:none;min-height:42px;max-height:120px
   }
   .btn{
     background:#2679e8;color:#fff;border:0;border-radius:12px;
-    padding:12px 18px;font-size:15px;font-weight:600;cursor:pointer
+    padding:11px 16px;font-size:14px;font-weight:600;cursor:pointer
   }
   .btn:disabled{opacity:0.6;cursor:not-allowed}
+  .status-msg{font-size:13px;color:#58a6ff;min-height:18px}
 
   /* Tool Cards */
   .card{
@@ -101,17 +113,6 @@
     display:inline-block;background:#238636;color:#fff;text-decoration:none;
     padding:10px 18px;border-radius:10px;font-size:14px;font-weight:600
   }
-
-  /* Modal for API Key */
-  .modal{
-    display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);
-    align-items:center;justify-content:center;padding:20px;z-index:200
-  }
-  .modal.open{display:flex}
-  .modal-content{
-    background:#161b22;border:1px solid #30363d;border-radius:16px;
-    padding:22px;width:100%;max-width:440px;display:flex;flex-direction:column;gap:14px
-  }
   .note{text-align:center;color:#6e7681;font-size:12px;margin-top:8px}
 </style>
 </head>
@@ -119,15 +120,29 @@
 
 <header>
   <div class="logo">ZONE <span>X AI</span></div>
-  <button class="key-btn" onclick="openModal()">⚙️ API Key</button>
+  <button type="button" class="key-btn" id="toggleKeyBtn">⚙️ API Key</button>
 </header>
 
+<!-- Inline Key Box Directly Inside Page -->
+<div class="inline-key-panel" id="keyPanel">
+  <div class="inline-key-inner">
+    <div style="font-size:13px;color:#c9d1d9;">
+      <b>Gemini API Key</b> (sirf aapke browser mein save rahegi):
+    </div>
+    <div class="inline-key-row">
+      <input type="password" id="geminiKeyInput" placeholder="AIzaSy... apni API Key yahan paste karein">
+      <button type="button" class="btn" id="saveKeyBtn">Save</button>
+    </div>
+    <div class="status-msg" id="keyStatus"></div>
+  </div>
+</div>
+
 <div class="tabs">
-  <button class="tab active" onclick="switchTab('chat', this)">💬 AI Chat</button>
-  <button class="tab" onclick="switchTab('txt2img', this)">🖼️ Text to Image</button>
-  <button class="tab" onclick="switchTab('vid2aud', this)">🎵 Video to Audio</button>
-  <button class="tab" onclick="switchTab('txt2vid', this)">🎬 Text to Video</button>
-  <button class="tab" onclick="switchTab('aud2vid', this)">🎙️ Audio to Video</button>
+  <button type="button" class="tab active" onclick="switchTab('chat', this)">💬 AI Chat</button>
+  <button type="button" class="tab" onclick="switchTab('txt2img', this)">🖼️ Text to Image</button>
+  <button type="button" class="tab" onclick="switchTab('vid2aud', this)">🎵 Video to Audio</button>
+  <button type="button" class="tab" onclick="switchTab('txt2vid', this)">🎬 Text to Video</button>
+  <button type="button" class="tab" onclick="switchTab('aud2vid', this)">🎙️ Audio to Video</button>
 </div>
 
 <main>
@@ -136,13 +151,13 @@
     <div class="welcome" id="welcome">
       <h1>Welcome to ZONE X AI ✨</h1>
       <p>Chat • Image • Video • Audio Studio</p>
-      <p style="margin-top:8px;font-size:13px;">(AI Chat chalu karne ke liye upar <b>⚙️ API Key</b> par click karke apni Gemini API Key dalein)</p>
+      <p style="margin-top:8px;font-size:13px;">Upar <b>⚙️ API Key</b> dabakar apni Gemini API Key save karein</p>
     </div>
     <div id="messages"></div>
     <div class="chat-footer">
       <div class="inputbox">
         <textarea id="prompt" placeholder="Message ZONE X AI..."></textarea>
-        <button class="btn" id="sendBtn" onclick="sendMessage()">➤</button>
+        <button type="button" class="btn" id="sendBtn" onclick="sendMessage()">➤</button>
       </div>
       <div class="note">ZONE X AI • Powered by AI</div>
     </div>
@@ -152,9 +167,9 @@
   <section id="txt2img" class="section">
     <div class="card">
       <h2>🖼️ Text to Image Generator</h2>
-      <p>Apni kalpana likhein (English mein likhne par behtar image banti hai) aur AI se turant photo banayein.</p>
-      <textarea id="imgPrompt" rows="3" placeholder="Example: Futuristic sci-fi robot warrior standing in neon city, cinematic 8k, realistic..."></textarea>
-      <button class="btn" id="imgBtn" onclick="generateImage()">Generate Image</button>
+      <p>English mein prompt likhein aur AI se photo banayein.</p>
+      <textarea id="imgPrompt" rows="3" placeholder="Example: Futuristic sci-fi robot warrior standing in neon city, cinematic 8k..."></textarea>
+      <button type="button" class="btn" id="imgBtn" onclick="generateImage()">Generate Image</button>
       <div class="output-box" id="imgOutput"></div>
     </div>
   </section>
@@ -163,11 +178,11 @@
   <section id="vid2aud" class="section">
     <div class="card">
       <h2>🎵 Video to Audio Extractor</h2>
-      <p>Kisi bhi video file se seedhe apne browser mein audio nikalein aur download karein (100% Free & Offline).</p>
+      <p>Kisi bhi video file se seedhe apne browser mein audio nikalein.</p>
       <div class="file-box">
         <input type="file" id="vidFile" accept="video/*">
       </div>
-      <button class="btn" id="v2aBtn" onclick="extractAudio()">Extract Audio</button>
+      <button type="button" class="btn" id="v2aBtn" onclick="extractAudio()">Extract Audio</button>
       <div class="output-box" id="v2aOutput"></div>
     </div>
   </section>
@@ -176,9 +191,9 @@
   <section id="txt2vid" class="section">
     <div class="card">
       <h2>🎬 Text to Video Generator</h2>
-      <p>Scene ka description likhein. (Is feature ko chalu karne ke liye Video Generation API backend URL jodne ki zaroorat hogi).</p>
+      <p>Scene ka description likhein.</p>
       <textarea id="vidPrompt" rows="3" placeholder="Example: A cinematic drone shot flying over snowy mountains at sunrise..."></textarea>
-      <button class="btn" onclick="generateTextToVideo()">Generate Video</button>
+      <button type="button" class="btn" onclick="generateTextToVideo()">Generate Video</button>
       <div class="output-box" id="t2vOutput"></div>
     </div>
   </section>
@@ -187,34 +202,41 @@
   <section id="aud2vid" class="section">
     <div class="card">
       <h2>🎙️ Audio to Video Generator</h2>
-      <p>Apna audio ya voiceover upload karein aur visual style likhein.</p>
+      <p>Audio file upload karein aur visual style likhein.</p>
       <div class="file-box">
         <input type="file" id="audFile" accept="audio/*">
       </div>
       <input type="text" id="a2vPrompt" placeholder="Visual style (e.g. 3D cartoon animation, music visualizer...)">
-      <button class="btn" onclick="generateAudioToVideo()">Create Video</button>
+      <button type="button" class="btn" onclick="generateAudioToVideo()">Create Video</button>
       <div class="output-box" id="a2vOutput"></div>
     </div>
   </section>
 </main>
 
-<!-- API Key Settings Modal -->
-<div class="modal" id="apiModal">
-  <div class="modal-content">
-    <h3 style="color:#58a6ff;">⚙️ AI API Settings</h3>
-    <p style="font-size:13px;color:#8b949e;line-height:1.5;">
-      AI Chat ko live karne ke liye <b>Google AI Studio</b> se apni free Gemini API Key banayein aur yahan paste karein. Yeh key sirf aapke phone/browser mein safe rahegi.
-    </p>
-    <input type="password" id="geminiKeyInput" placeholder="AIzaSy... (Apni Gemini API Key dalein)">
-    <div style="display:flex;gap:10px;justify-content:flex-end;">
-      <button class="key-btn" onclick="closeModal()">Cancel</button>
-      <button class="btn" onclick="saveKey()">Save Key</button>
-    </div>
-  </div>
-</div>
-
 <script>
-// Tab Switching
+document.addEventListener('DOMContentLoaded', () => {
+  const toggleBtn = document.getElementById('toggleKeyBtn');
+  const keyPanel = document.getElementById('keyPanel');
+  const keyInput = document.getElementById('geminiKeyInput');
+  const saveBtn = document.getElementById('saveKeyBtn');
+  const keyStatus = document.getElementById('keyStatus');
+
+  keyInput.value = localStorage.getItem('zonex_gemini_key') || '';
+  if (localStorage.getItem('zonex_gemini_key')) {
+    keyStatus.textContent = '✓ API Key pehle se save hai.';
+  }
+
+  toggleBtn.addEventListener('click', () => {
+    keyPanel.classList.toggle('open');
+  });
+
+  saveBtn.addEventListener('click', () => {
+    const val = keyInput.value.trim();
+    localStorage.setItem('zonex_gemini_key', val);
+    keyStatus.textContent = val ? '✓ API Key save ho gayi hai!' : 'Key hata di gayi hai.';
+  });
+});
+
 function switchTab(tabId, el) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
@@ -222,22 +244,6 @@ function switchTab(tabId, el) {
   el.classList.add('active');
 }
 
-// API Key Modal Logic
-function openModal() {
-  document.getElementById('geminiKeyInput').value = localStorage.getItem('zonex_gemini_key') || '';
-  document.getElementById('apiModal').classList.add('open');
-}
-function closeModal() {
-  document.getElementById('apiModal').classList.remove('open');
-}
-function saveKey() {
-  const key = document.getElementById('geminiKeyInput').value.trim();
-  localStorage.setItem('zonex_gemini_key', key);
-  closeModal();
-  alert('API Key save ho gayi hai! Ab aap AI Chat use kar sakte hain.');
-}
-
-// 1. LIVE AI CHAT (Gemini API)
 async function sendMessage() {
   const input = document.getElementById('prompt');
   const text = input.value.trim();
@@ -260,7 +266,8 @@ async function sendMessage() {
   window.scrollTo(0, document.body.scrollHeight);
 
   if (!apiKey) {
-    botDiv.textContent = '⚠️ AI Chat chalu karne ke liye upar "⚙️ API Key" button par click karke apni Google Gemini API Key dalein.';
+    document.getElementById('keyPanel').classList.add('open');
+    botDiv.textContent = '⚠️ Upar khule API Key box mein apni Gemini API Key paste karke Save dabayein.';
     return;
   }
 
@@ -276,8 +283,7 @@ async function sendMessage() {
     if (data.error) {
       botDiv.textContent = 'API Error: ' + data.error.message;
     } else {
-      const reply = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Koi jawab nahi mila.';
-      botDiv.textContent = reply;
+      botDiv.textContent = data.candidates?.[0]?.content?.parts?.[0]?.text || 'Koi jawab nahi mila.';
     }
   } catch (err) {
     botDiv.textContent = 'Network Error: Internet ya API Key check karein.';
@@ -285,15 +291,14 @@ async function sendMessage() {
   window.scrollTo(0, document.body.scrollHeight);
 }
 
-// 2. LIVE TEXT TO IMAGE (Free Pollinations AI)
 async function generateImage() {
   const prompt = document.getElementById('imgPrompt').value.trim();
   const out = document.getElementById('imgOutput');
   const btn = document.getElementById('imgBtn');
-  if (!prompt) return alert('Pehle prompt likhein!');
+  if (!prompt) return;
 
   btn.disabled = true;
-  out.innerHTML = '<p style="color:#58a6ff;">Image ban rahi hai, 5-10 second rukhein... 🎨</p>';
+  out.innerHTML = '<p style="color:#58a6ff;">Image ban rahi hai... 🎨</p>';
 
   const seed = Math.floor(Math.random() * 1000000);
   const imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1024&height=1024&seed=${seed}&nologo=true`;
@@ -319,15 +324,14 @@ async function generateImage() {
   img.src = imageUrl;
 }
 
-// 3. LIVE VIDEO TO AUDIO (Browser Native Extraction)
 async function extractAudio() {
   const fileInput = document.getElementById('vidFile');
   const out = document.getElementById('v2aOutput');
   const btn = document.getElementById('v2aBtn');
-  if (!fileInput.files.length) return alert('Pehle koi video file chunein!');
+  if (!fileInput.files.length) return;
 
   btn.disabled = true;
-  out.innerHTML = '<p style="color:#58a6ff;">Video se audio nikala ja raha hai... (Video ki lambai ke hisab se waqt lagega)</p>';
+  out.innerHTML = '<p style="color:#58a6ff;">Video se audio nikala ja raha hai...</p>';
 
   try {
     const file = fileInput.files[0];
@@ -351,4 +355,39 @@ async function extractAudio() {
 
     recorder.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
     recorder.onstop = () => {
- 
+      const blob = new Blob(chunks, { type: 'audio/webm' });
+      const url = URL.createObjectURL(blob);
+      out.innerHTML = `
+        <audio src="${url}" controls style="width:100%;"></audio>
+        <a href="${url}" download="zonex-extracted-audio.webm" class="download-link">⬇️ Download Audio</a>
+      `;
+      btn.disabled = false;
+    };
+
+    recorder.start();
+    videoEl.play();
+    videoEl.onended = () => {
+      if (recorder.state !== 'inactive') recorder.stop();
+    };
+  } catch (e) {
+    out.innerHTML = '<p style="color:#f85149;">Aapke browser mein direct audio capture support nahi ho paya.</p>';
+    btn.disabled = false;
+  }
+}
+
+function generateTextToVideo() {
+  const prompt = document.getElementById('vidPrompt').value.trim();
+  const out = document.getElementById('t2vOutput');
+  if (!prompt) return;
+  out.innerHTML = `<div style="background:#0d1117;border:1px solid #30363d;padding:14px;border-radius:12px;font-size:14px;color:#c9d1d9;"><b>Prompt:</b> "${prompt}"<br><br>Text-to-Video ke liye video API backend jodne ki zaroorat hogi.</div>`;
+}
+
+function generateAudioToVideo() {
+  const fileInput = document.getElementById('audFile');
+  const out = document.getElementById('a2vOutput');
+  if (!fileInput.files.length) return;
+  out.innerHTML = `<div style="background:#0d1117;border:1px solid #30363d;padding:14px;border-radius:12px;font-size:14px;color:#c9d1d9;"><b>Audio:</b> ${fileInput.files[0].name}<br><br>Audio-to-Video ke liye video rendering API backend jodne ki zaroorat hogi.</div>`;
+}
+</script>
+</body>
+</html>
