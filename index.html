@@ -1,0 +1,103 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ZONE X AI</title>
+<style>
+*{box-sizing:border-box}
+body{
+ margin:0;background:#10131b;color:#fff;
+ font-family:Arial,sans-serif;height:100vh;
+ display:flex;flex-direction:column
+}
+header{
+ padding:18px;background:#191e29;
+ border-bottom:1px solid #30394a;
+ display:flex;align-items:center;gap:12px
+}
+.logo{font-size:23px;font-weight:bold;color:#58a6ff}
+.logo span{color:#fff}
+main{
+ flex:1;overflow-y:auto;padding:20px;
+ width:100%;max-width:850px;margin:auto
+}
+.welcome{text-align:center;margin-top:12vh}
+.welcome h1{font-size:32px}
+.welcome p{color:#aab4c5}
+#messages{display:flex;flex-direction:column;gap:18px}
+.message{
+ padding:14px 17px;border-radius:15px;
+ line-height:1.6;max-width:90%;
+ white-space:pre-wrap;overflow-wrap:anywhere
+}
+.user{background:#234b78;align-self:flex-end}
+.bot{background:#202938;align-self:flex-start}
+footer{padding:15px;background:#10131b}
+.inputbox{
+ max-width:800px;margin:auto;display:flex;
+ gap:10px;background:#202938;
+ border:1px solid #46536a;border-radius:18px;padding:10px
+}
+textarea{
+ flex:1;background:transparent;border:0;outline:0;
+ color:white;font-size:16px;resize:none;
+ min-height:45px;padding:12px
+}
+button{
+ background:#2679e8;color:white;border:0;
+ border-radius:12px;padding:12px 18px;
+ font-size:16px;cursor:pointer
+}
+.note{text-align:center;color:#8994a5;font-size:11px;margin-top:10px}
+</style>
+</head>
+<body>
+<header>
+ <div class="logo">ZONE <span>X AI</span></div>
+ <div style="margin-left:auto;color:#aab4c5">Your AI Assistant</div>
+</header>
+
+<main>
+ <div class="welcome" id="welcome">
+  <h1>Welcome to ZONE X AI ✨</h1>
+  <p>Your personal AI assistant</p>
+  <p>Ask me anything to get started.</p>
+ </div>
+ <div id="messages"></div>
+</main>
+
+<footer>
+ <div class="inputbox">
+  <textarea id="prompt" placeholder="Message ZONE X AI..."></textarea>
+  <button onclick="sendMessage()">➤</button>
+ </div>
+ <div class="note">ZONE X AI • AI responses can make mistakes</div>
+</footer>
+
+<script>
+async function sendMessage(){
+ const input=document.getElementById('prompt');
+ const text=input.value.trim();
+ if(!text)return;
+
+ document.getElementById('welcome').style.display='none';
+ const messages=document.getElementById('messages');
+
+ const user=document.createElement('div');
+ user.className='message user';
+ user.textContent=text;
+ messages.appendChild(user);
+ input.value='';
+
+ const bot=document.createElement('div');
+ bot.className='message bot';
+ bot.textContent='AI backend abhi connect nahi hua hai. Agle step mein hum secure AI connection banayenge.';
+ messages.appendChild(bot);
+
+ window.scrollTo(0,document.body.scrollHeight);
+}
+</script>
+</body>
+</html>
